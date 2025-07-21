@@ -17,11 +17,17 @@ export interface AuthState {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isLoggingIn: boolean;
+  isRegistering: boolean;
+  login: (credentials: { username: string; businessId: number }) => Promise<void>;
+  register: (data: any) => Promise<void>;
 }
 
 export function useAuth(): AuthState {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -42,10 +48,53 @@ export function useAuth(): AuthState {
     }
   };
 
+  const handleLogin = async (credentials: { username: string; businessId: number }) => {
+    setIsLoggingIn(true);
+    try {
+      const response = await apiRequest("POST", "/api/login", {
+        username: credentials.username,
+        businessId: credentials.businessId
+      });
+      if (response.ok) {
+        await checkAuth(); // Refresh user data
+        window.location.href = "/dashboard"; // Redirect to dashboard
+      } else {
+        throw new Error("Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Login failed. Please check your username and business ID.");
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleRegister = async (data: any) => {
+    setIsRegistering(true);
+    try {
+      const response = await apiRequest("POST", "/api/register", data);
+      if (response.ok) {
+        await checkAuth(); // Refresh user data
+        window.location.href = "/dashboard"; // Redirect to dashboard
+      } else {
+        throw new Error("Registration failed");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      alert("Registration failed. Please try again.");
+    } finally {
+      setIsRegistering(false);
+    }
+  };
+
   return {
     user,
     isLoading,
     isAuthenticated: !!user,
+    isLoggingIn,
+    isRegistering,
+    login: handleLogin,
+    register: handleRegister,
   };
 }
 
