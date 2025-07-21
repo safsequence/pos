@@ -67,12 +67,12 @@ export default function Sidebar() {
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center">
               <span className="text-white font-semibold">
-                {user?.firstName.charAt(0)}{user?.lastName.charAt(0)}
+                {user?.firstName?.charAt(0) || 'U'}{user?.lastName?.charAt(0) || 'S'}
               </span>
             </div>
             <div>
-              <p className="font-medium">{user?.firstName} {user?.lastName}</p>
-              <p className="text-emerald-200 text-sm capitalize">{user?.role}</p>
+              <p className="font-medium">{user?.firstName || 'User'} {user?.lastName || 'Name'}</p>
+              <p className="text-emerald-200 text-sm capitalize">{user?.role || 'employee'}</p>
             </div>
           </div>
         </div>

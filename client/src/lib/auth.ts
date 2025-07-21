@@ -15,16 +15,19 @@ export interface User {
 
 export interface AuthState {
   user: User | null;
+  business: any | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   isLoggingIn: boolean;
   isRegistering: boolean;
   login: (credentials: { username: string; businessId: number }) => Promise<void>;
   register: (data: any) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 export function useAuth(): AuthState {
   const [user, setUser] = useState<User | null>(null);
+  const [business, setBusiness] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
@@ -37,8 +40,9 @@ export function useAuth(): AuthState {
     try {
       const response = await apiRequest("GET", "/api/me");
       if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
+        const data = await response.json();
+        setUser(data.user);
+        setBusiness(data.business);
       }
     } catch (error) {
       // User not authenticated
@@ -87,14 +91,27 @@ export function useAuth(): AuthState {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await apiRequest("POST", "/api/logout");
+      setUser(null);
+      setBusiness(null);
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
   return {
     user,
+    business,
     isLoading,
     isAuthenticated: !!user,
     isLoggingIn,
     isRegistering,
     login: handleLogin,
     register: handleRegister,
+    logout: handleLogout,
   };
 }
 

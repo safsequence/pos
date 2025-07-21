@@ -182,7 +182,7 @@ export default function POSModal({ isOpen, onClose }: POSModalProps) {
       taxAmount: totals.tax,
       total: totals.total,
       paymentMethod,
-      customerId: selectedCustomerId ? parseInt(selectedCustomerId) : null,
+      customerId: selectedCustomerId && selectedCustomerId !== "walk-in" ? parseInt(selectedCustomerId) : null,
       status: "completed"
     };
 
@@ -253,7 +253,7 @@ export default function POSModal({ isOpen, onClose }: POSModalProps) {
                   <SelectValue placeholder="Walk-in Customer" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Walk-in Customer</SelectItem>
+                  <SelectItem value="walk-in">Walk-in Customer</SelectItem>
                   {customers.map((customer) => (
                     <SelectItem key={customer.id} value={customer.id.toString()}>
                       {customer.firstName} {customer.lastName}
