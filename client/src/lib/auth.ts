@@ -57,7 +57,7 @@ export function useAuth(): AuthState {
       });
       if (response.ok) {
         await checkAuth(); // Refresh user data
-        window.location.href = "/dashboard"; // Redirect to dashboard
+        window.location.href = "/"; // Redirect to home
       } else {
         throw new Error("Login failed");
       }
@@ -75,7 +75,7 @@ export function useAuth(): AuthState {
       const response = await apiRequest("POST", "/api/register", data);
       if (response.ok) {
         await checkAuth(); // Refresh user data
-        window.location.href = "/dashboard"; // Redirect to dashboard
+        window.location.href = "/"; // Redirect to home
       } else {
         throw new Error("Registration failed");
       }
