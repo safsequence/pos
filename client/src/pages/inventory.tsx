@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Plus, Search, Package, AlertTriangle } from "lucide-react";
+import { useAuth } from "@/lib/auth";
+import { Plus, Search, Package, AlertTriangle, Edit, Eye } from "lucide-react";
 
 interface Product {
   id: number;
@@ -25,8 +26,14 @@ interface Product {
 
 export default function Inventory() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  
+  // Check if user has admin/manager privileges
+  const canEdit = user?.role === 'admin' || user?.role === 'manager';
   const [newProduct, setNewProduct] = useState({
     name: "",
     description: "",
@@ -125,13 +132,14 @@ export default function Inventory() {
               <h2 className="text-2xl font-bold text-gray-900">Inventory</h2>
               <p className="text-gray-600">Manage your products and stock levels</p>
             </div>
-            <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-              <DialogTrigger asChild>
-                <Button className="btn-primary">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Product
-                </Button>
-              </DialogTrigger>
+            {canEdit && (
+              <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+                <DialogTrigger asChild>
+                  <Button className="btn-primary">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Product
+                  </Button>
+                </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Add New Product</DialogTitle>
@@ -235,6 +243,7 @@ export default function Inventory() {
                 </form>
               </DialogContent>
             </Dialog>
+            )}
           </div>
         </header>
 
@@ -326,12 +335,15 @@ export default function Inventory() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredProducts.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                        <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
                           {products.length === 0 ? "No products yet. Add your first product!" : "No products match your search."}
                         </td>
                       </tr>
@@ -367,6 +379,20 @@ export default function Inventory() {
                               <Badge className="bg-green-100 text-green-800">In Stock</Badge>
                             )}
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedProduct(product);
+                                setIsViewModalOpen(true);
+                              }}
+                              className="text-emerald-600 hover:text-emerald-700"
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              {canEdit ? 'Edit' : 'View'}
+                            </Button>
+                          </td>
                         </tr>
                       ))
                     )}
@@ -376,6 +402,135 @@ export default function Inventory() {
             </CardContent>
           </Card>
         </main>
+
+        {/* Product View/Edit Modal */}
+        <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                {canEdit ? 'Edit Product' : 'View Product'} - {selectedProduct?.name}
+              </DialogTitle>
+            </DialogHeader>
+            
+            {selectedProduct && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Product Name</Label>
+                    {canEdit ? (
+                      <Input value={selectedProduct.name} readOnly />
+                    ) : (
+                      <p className="text-sm text-gray-900 mt-1">{selectedProduct.name}</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label>SKU</Label>
+                    {canEdit ? (
+                      <Input value={selectedProduct.sku || ''} readOnly />
+                    ) : (
+                      <p className="text-sm text-gray-900 mt-1">{selectedProduct.sku || 'N/A'}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <Label>Description</Label>
+                  {canEdit ? (
+                    <Input value={selectedProduct.description || ''} readOnly />
+                  ) : (
+                    <p className="text-sm text-gray-900 mt-1">{selectedProduct.description || 'N/A'}</p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Price</Label>
+                    {canEdit ? (
+                      <Input value={`$${selectedProduct.price}`} readOnly />
+                    ) : (
+                      <p className="text-sm text-gray-900 mt-1 font-semibold">${selectedProduct.price}</p>
+                    )}
+                  </div>
+                  {canEdit && (
+                    <div>
+                      <Label>Cost</Label>
+                      <Input value={`$${selectedProduct.cost}`} readOnly />
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Current Stock</Label>
+                    <p className="text-sm text-gray-900 mt-1 font-semibold">
+                      {selectedProduct.stock} units
+                    </p>
+                  </div>
+                  <div>
+                    <Label>Stock Status</Label>
+                    <div className="mt-1">
+                      {selectedProduct.stock <= 0 ? (
+                        <Badge variant="destructive">Out of Stock</Badge>
+                      ) : selectedProduct.stock <= selectedProduct.lowStockThreshold ? (
+                        <Badge className="bg-amber-100 text-amber-800">Low Stock</Badge>
+                      ) : (
+                        <Badge className="bg-green-100 text-green-800">In Stock</Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {canEdit && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Low Stock Threshold</Label>
+                      <Input value={selectedProduct.lowStockThreshold} readOnly />
+                    </div>
+                    <div>
+                      <Label>Barcode</Label>
+                      <Input value={selectedProduct.barcode || ''} readOnly />
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h4 className="font-medium text-gray-900 mb-2">Stock Information</h4>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Current Stock:</span>
+                      <span className="ml-2 font-medium">{selectedProduct.stock} units</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Stock Value:</span>
+                      <span className="ml-2 font-medium">
+                        ${(parseFloat(selectedProduct.price) * selectedProduct.stock).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                  {!canEdit && (
+                    <div className="mt-3 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
+                      <p className="text-sm text-blue-700">
+                        <strong>Employee Access:</strong> You can view stock levels but cannot modify product details or pricing.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex justify-end space-x-3">
+                  <Button variant="outline" onClick={() => setIsViewModalOpen(false)}>
+                    Close
+                  </Button>
+                  {canEdit && (
+                    <Button className="btn-primary">
+                      <Edit className="w-4 h-4 mr-2" />
+                      Edit Product
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

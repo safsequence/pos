@@ -12,14 +12,15 @@ import {
   LogOut 
 } from "lucide-react";
 
-const navigation = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard },
-  { name: "Point of Sale", href: "/pos", icon: ShoppingCart },
-  { name: "Inventory", href: "/inventory", icon: Package },
-  { name: "Customers", href: "/customers", icon: Users },
-  { name: "Employees", href: "/employees", icon: UserCheck },
-  { name: "Reports", href: "/reports", icon: BarChart3 },
-  { name: "Settings", href: "/settings", icon: Settings },
+// Define navigation items with role restrictions
+const allNavigation = [
+  { name: "Dashboard", href: "/", icon: LayoutDashboard, roles: ["admin", "manager", "employee"] },
+  { name: "Point of Sale", href: "/pos", icon: ShoppingCart, roles: ["admin", "manager", "employee"] },
+  { name: "Inventory", href: "/inventory", icon: Package, roles: ["admin", "manager", "employee"] },
+  { name: "Customers", href: "/customers", icon: Users, roles: ["admin", "manager", "employee"] },
+  { name: "Employees", href: "/employees", icon: UserCheck, roles: ["admin", "manager"] },
+  { name: "Reports", href: "/reports", icon: BarChart3, roles: ["admin", "manager"] },
+  { name: "Settings", href: "/settings", icon: Settings, roles: ["admin"] },
 ];
 
 export default function Sidebar() {
@@ -44,20 +45,22 @@ export default function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 mt-6">
         <div className="px-4 space-y-2">
-          {navigation.map((item) => {
-            const Icon = item.icon;
-            const isActive = location === item.href || 
-              (item.href === "/" && location === "/");
-            
-            return (
-              <Link key={item.name} href={item.href}>
-                <div className={`sidebar-item ${isActive ? 'active' : ''}`}>
-                  <Icon className="w-5 h-5 mr-3" />
-                  {item.name}
-                </div>
-              </Link>
-            );
-          })}
+          {allNavigation
+            .filter(item => item.roles.includes(user?.role || 'employee'))
+            .map((item) => {
+              const Icon = item.icon;
+              const isActive = location === item.href || 
+                (item.href === "/" && location === "/");
+              
+              return (
+                <Link key={item.name} href={item.href}>
+                  <div className={`sidebar-item ${isActive ? 'active' : ''}`}>
+                    <Icon className="w-5 h-5 mr-3" />
+                    {item.name}
+                  </div>
+                </Link>
+              );
+            })}
         </div>
       </nav>
       

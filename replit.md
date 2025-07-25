@@ -35,7 +35,10 @@ Preferred communication style: Simple, everyday language.
 ### Authentication System
 - Session-based authentication using express-session
 - Multi-tenant support with business-scoped users
-- Role-based access control (admin, manager, employee)
+- Role-based access control with three levels:
+  - **Admin**: Full access to all features, settings, employee management
+  - **Manager**: Access to inventory management, reports, customer data
+  - **Employee**: View-only inventory access, POS transactions, customer lookup
 - Registration flow creates both business and admin user
 
 ### Database Schema
@@ -49,10 +52,11 @@ The application uses a comprehensive schema supporting:
 
 ### Core Features
 1. **Point of Sale**: Real-time transaction processing with cart management
-2. **Inventory Management**: Product CRUD, stock tracking, low-stock alerts
+2. **Inventory Management**: Product CRUD, stock tracking, low-stock alerts with role-based access
 3. **Customer Management**: Customer profiles, purchase history, loyalty tracking
 4. **Reporting**: Sales analytics, transaction history, performance metrics
 5. **Settings**: Business configuration, tax rates, payment options
+6. **Role-Based Access Control**: Different UI and permissions for admin, manager, and employee roles
 
 ## Data Flow
 
