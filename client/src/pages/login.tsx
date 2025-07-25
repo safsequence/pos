@@ -57,11 +57,6 @@ export default function Login() {
         <Card>
           <CardHeader>
             <CardTitle className="text-center">Welcome</CardTitle>
-            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 mt-4">
-              <h4 className="font-medium text-emerald-800 mb-2">Demo Credentials</h4>
-              <p className="text-sm text-emerald-700">Username: <strong>admin</strong></p>
-              <p className="text-sm text-emerald-700">Business ID: <strong>1</strong></p>
-            </div>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="login" className="w-full">
@@ -99,6 +94,42 @@ export default function Login() {
                     {isLoggingIn ? "Signing In..." : "Sign In"}
                   </Button>
                 </form>
+                
+                {/* Demo Credentials */}
+                <div className="mt-6 p-4 bg-gray-50 rounded-lg border">
+                  <h3 className="text-sm font-medium text-gray-900 mb-3">Demo Credentials</h3>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between p-2 bg-white rounded border">
+                      <div>
+                        <div className="font-medium text-emerald-700">Admin Access</div>
+                        <div className="text-gray-600">Business ID: 1, Username: admin</div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setLoginForm({username: 'admin', businessId: '1'})}
+                      >
+                        Use
+                      </Button>
+                    </div>
+                    <div className="flex items-center justify-between p-2 bg-white rounded border">
+                      <div>
+                        <div className="font-medium text-blue-700">Employee Access</div>
+                        <div className="text-gray-600">Business ID: 1, Username: employee1</div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setLoginForm({username: 'employee1', businessId: '1'})}
+                      >
+                        Use
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="mt-3 text-xs text-gray-500">
+                    Click "Use" to auto-fill credentials, then click "Sign In"
+                  </div>
+                </div>
               </TabsContent>
               
               <TabsContent value="register">
