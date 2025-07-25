@@ -2,7 +2,7 @@
 
 ## Overview
 
-ZnForge POS is a full-stack Point of Sale application built with modern web technologies. It's designed for small to medium businesses to manage sales transactions, inventory, customers, and generate reports. The system features a multi-tenant architecture where each business operates independently with their own users, products, and data.
+ZnForge POS is a full-stack Point of Sale application built with modern web technologies. It's designed for small to medium businesses to manage sales transactions, inventory, customers, and generate reports. The application features a React frontend with a Node.js/Express backend, using PostgreSQL for data persistence.
 
 ## User Preferences
 
@@ -12,117 +12,96 @@ Preferred communication style: Simple, everyday language.
 
 ### Frontend Architecture
 - **Framework**: React with TypeScript
-- **Build Tool**: Vite for fast development and optimized production builds
-- **Routing**: Wouter for lightweight client-side routing
-- **State Management**: TanStack Query (React Query) for server state management and caching
+- **Build Tool**: Vite for development and production builds
+- **Routing**: Wouter for client-side routing
+- **State Management**: TanStack Query (React Query) for server state and caching
 - **UI Framework**: Radix UI components with shadcn/ui design system
-- **Styling**: Tailwind CSS with custom CSS variables for consistent theming
-- **Form Handling**: React Hook Form with Zod validation for type-safe forms
+- **Styling**: Tailwind CSS with custom CSS variables for theming
+- **Form Handling**: React Hook Form with Zod validation
 
-**Rationale**: This modern React stack provides excellent developer experience with type safety throughout. Radix UI ensures accessibility compliance, while TanStack Query handles complex server state synchronization automatically. Vite offers blazing-fast development builds and optimized production bundles.
+**Rationale**: This stack provides a modern, type-safe development experience with excellent performance and developer experience. Radix UI ensures accessibility, while TanStack Query handles complex server state management efficiently.
 
 ### Backend Architecture
 - **Runtime**: Node.js with Express.js framework
-- **Language**: TypeScript with ES modules for modern JavaScript features
-- **Database**: PostgreSQL with Neon serverless driver for scalable cloud hosting
-- **ORM**: Drizzle ORM for type-safe database operations and migrations
-- **Session Management**: express-session with PostgreSQL session store for persistence
-- **Development**: tsx for direct TypeScript execution with hot reloading
+- **Language**: TypeScript with ES modules
+- **Session Management**: express-session with PostgreSQL session store
+- **Database Access**: Drizzle ORM for type-safe database operations
+- **Development**: Hot reloading with tsx for TypeScript execution
 
-**Rationale**: Express provides a mature, battle-tested foundation for REST APIs. Drizzle ORM offers excellent TypeScript integration while remaining lightweight and performant. PostgreSQL provides robust data consistency and complex query capabilities needed for business operations.
+**Rationale**: Express provides a mature, flexible foundation for the API. Drizzle ORM offers excellent TypeScript integration and type safety while remaining lightweight and performant.
 
 ## Key Components
 
 ### Authentication System
-- Session-based authentication using express-session with PostgreSQL storage
-- Multi-tenant security with business-scoped access control
-- Role-based permissions (admin, manager, employee)
-- Registration flow that creates both business entity and admin user account
+- Session-based authentication using express-session
+- Multi-tenant support with business-scoped users
+- Role-based access control (admin, manager, employee)
+- Registration flow creates both business and admin user
 
 ### Database Schema
-The application uses a comprehensive multi-tenant schema:
-- **Multi-tenancy**: All data is scoped to business entities for complete isolation
-- **User Management**: Role-based user system with business-specific accounts
-- **Product Catalog**: Hierarchical categories with detailed product information and inventory tracking
-- **Customer Management**: Customer profiles with contact information and loyalty points
-- **Transaction Processing**: Complete sales transaction handling with itemized line items
-- **Audit Trail**: Comprehensive timestamps and user tracking for compliance
+The application uses a comprehensive schema supporting:
+- **Multi-tenancy**: All data is scoped to businesses
+- **User Management**: Role-based user system
+- **Product Catalog**: Categories, products with inventory tracking
+- **Customer Management**: Customer profiles with loyalty points
+- **Transaction Processing**: Complete sales transaction handling
+- **Audit Trail**: Timestamps and user tracking
 
-### Core Business Features
-- **Point of Sale**: Real-time transaction processing with tax calculations
-- **Inventory Management**: Stock tracking with low-stock alerts and category organization
-- **Customer Management**: Customer database with purchase history and loyalty programs
-- **Employee Management**: User accounts with role-based access control
-- **Reporting**: Sales analytics and business intelligence dashboards
-- **Settings**: Business configuration and system preferences
+### Core Features
+1. **Point of Sale**: Real-time transaction processing with cart management
+2. **Inventory Management**: Product CRUD, stock tracking, low-stock alerts
+3. **Customer Management**: Customer profiles, purchase history, loyalty tracking
+4. **Reporting**: Sales analytics, transaction history, performance metrics
+5. **Settings**: Business configuration, tax rates, payment options
 
 ## Data Flow
 
-### Authentication Flow
-1. User submits login credentials
-2. Server validates against business-scoped user database
-3. Session created and stored in PostgreSQL
-4. Client receives authentication status and user context
-5. All subsequent requests include session validation
-
-### Transaction Processing Flow
-1. Cashier scans/selects products in POS interface
-2. Real-time inventory availability checks
-3. Tax calculations applied based on business settings
-4. Payment processing (future Stripe integration planned)
-5. Transaction recorded with complete audit trail
-6. Inventory levels automatically updated
-7. Customer loyalty points updated if applicable
-
-### Multi-tenant Data Access
-1. All database queries include businessId filter
-2. Session middleware validates user belongs to business
-3. ORM enforces business-scoped data access
-4. Complete data isolation between businesses
+1. **Authentication Flow**: User logs in → Session created → Business context established
+2. **Transaction Flow**: Product selection → Cart management → Payment processing → Transaction recording
+3. **Real-time Updates**: TanStack Query provides optimistic updates and cache invalidation
+4. **Multi-tenant Isolation**: All API endpoints automatically filter by business ID from session
 
 ## External Dependencies
 
-### Core Technologies
-- **@neondatabase/serverless**: Serverless PostgreSQL driver for cloud database access
-- **drizzle-orm**: Type-safe ORM with excellent TypeScript integration
-- **@radix-ui/***: Accessible UI component primitives
-- **@tanstack/react-query**: Powerful data fetching and state management
-- **express-session**: Secure session management with PostgreSQL persistence
-
-### Payment Processing (Planned)
-- **@stripe/stripe-js**: Client-side Stripe integration for payment processing
-- **@stripe/react-stripe-js**: React components for Stripe Elements
-
-### Development Tools
-- **tsx**: TypeScript execution for development server
-- **vite**: Modern build tool with hot module replacement
+### Core Dependencies
+- **@neondatabase/serverless**: PostgreSQL connection for serverless environments
+- **@radix-ui/***: Comprehensive UI component library
+- **@tanstack/react-query**: Server state management
+- **drizzle-orm**: Type-safe ORM
+- **react-hook-form**: Form state management
+- **zod**: Schema validation
+- **wouter**: Lightweight routing
 - **tailwindcss**: Utility-first CSS framework
-- **zod**: Runtime type validation for forms and API endpoints
+
+### Development Dependencies
+- **vite**: Build tool and dev server
+- **typescript**: Type checking
+- **tsx**: TypeScript execution for Node.js
+- **drizzle-kit**: Database migration tool
 
 ## Deployment Strategy
 
-### Development Environment
-- Vite development server with hot module replacement
-- tsx for TypeScript execution without compilation step
-- Express API server with automatic restarts
-- PostgreSQL database with migration support via Drizzle
+### Build Process
+- **Frontend**: Vite builds React app to `dist/public`
+- **Backend**: esbuild bundles server code to `dist/index.js`
+- **Database**: Drizzle migrations handle schema changes
 
-### Production Build Process
-1. Vite builds optimized client bundle
-2. esbuild compiles server TypeScript to JavaScript
-3. Static assets served from Express server
-4. Database migrations applied via Drizzle Kit
-5. Environment variables configure database and session secrets
+### Environment Setup
+- Requires `DATABASE_URL` environment variable for PostgreSQL connection
+- Session secret can be configured via `SESSION_SECRET`
+- Supports both development and production modes
 
 ### Database Management
-- Drizzle migrations for schema versioning
-- Connection pooling via Neon serverless driver
-- Session storage in dedicated PostgreSQL table
-- Automatic reconnection and error handling
+- Uses Drizzle migrations stored in `./migrations`
+- Schema defined in `shared/schema.ts` for type sharing
+- Push-based deployments with `db:push` command
 
-### Security Considerations
-- Session-based authentication with secure cookies
-- Business-scoped data access controls
-- Input validation using Zod schemas
-- SQL injection protection via parameterized queries
-- CORS configuration for API access
+**Rationale**: This deployment strategy supports both traditional and serverless deployments while maintaining type safety across the entire stack. The monorepo structure with shared types reduces duplication and improves maintainability.
+
+### Development Workflow
+- `npm run dev`: Starts development server with hot reloading
+- `npm run build`: Creates production build
+- `npm run start`: Runs production server
+- `npm run db:push`: Applies database schema changes
+
+The application is designed to be easily deployable to platforms like Replit, Vercel, or traditional VPS hosting while supporting modern development practices and scalability requirements.
