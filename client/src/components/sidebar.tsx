@@ -16,6 +16,7 @@ import {
 const allNavigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard, roles: ["admin", "manager", "employee"] },
   { name: "Point of Sale", href: "/pos", icon: ShoppingCart, roles: ["admin", "manager", "employee"] },
+  { name: "Products", href: "/products", icon: Package, roles: ["admin"] },
   { name: "Inventory", href: "/inventory", icon: Package, roles: ["admin", "manager", "employee"] },
   { name: "Customers", href: "/customers", icon: Users, roles: ["admin", "manager", "employee"] },
   { name: "Employees", href: "/employees", icon: UserCheck, roles: ["admin", "manager"] },

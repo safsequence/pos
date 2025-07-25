@@ -42,6 +42,7 @@ export interface IStorage {
   getProduct(id: number, businessId: number): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
   updateProduct(id: number, businessId: number, updates: Partial<InsertProduct>): Promise<Product>;
+  deleteProduct(id: number, businessId: number): Promise<void>;
   getLowStockProducts(businessId: number): Promise<Product[]>;
   
   // Customers
@@ -82,14 +83,6 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
-  async getUserByUsernameAndBusiness(username: string, businessId: number): Promise<User | undefined> {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(and(eq(users.username, username), eq(users.businessId, businessId)));
-    return user || undefined;
-  }
-
   async createBusiness(insertBusiness: InsertBusiness): Promise<Business> {
     const [business] = await db
       .insert(businesses)
@@ -104,13 +97,6 @@ export class DatabaseStorage implements IStorage {
       .from(businesses)
       .where(eq(businesses.id, id));
     return business || undefined;
-  }
-
-  async getCategories(businessId: number): Promise<Category[]> {
-    return await db
-      .select()
-      .from(categories)
-      .where(eq(categories.businessId, businessId));
   }
 
   async createCategory(insertCategory: InsertCategory): Promise<Category> {
@@ -151,6 +137,20 @@ export class DatabaseStorage implements IStorage {
       .where(and(eq(products.id, id), eq(products.businessId, businessId)))
       .returning();
     return product;
+  }
+
+  async deleteProduct(id: number, businessId: number): Promise<void> {
+    await db
+      .update(products)
+      .set({ isActive: false })
+      .where(and(eq(products.id, id), eq(products.businessId, businessId)));
+  }
+
+  async getCategories(businessId: number): Promise<Category[]> {
+    return await db
+      .select()
+      .from(categories)
+      .where(eq(categories.businessId, businessId));
   }
 
   async getLowStockProducts(businessId: number): Promise<Product[]> {

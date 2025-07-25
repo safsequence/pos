@@ -166,6 +166,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/products/:id", requireAuth, async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const updates = {
+        ...req.body,
+        businessId: req.session.user!.businessId
+      };
+      delete updates.id; // Remove id from updates
+      
+      const product = await storage.updateProduct(productId, req.session.user!.businessId, updates);
+      res.json(product);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.put("/api/products/:id/stock", requireAuth, async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const { stock } = req.body;
+      
+      // Check if user has permission to adjust stock (admin or manager)
+      if (req.session.user!.role !== 'admin' && req.session.user!.role !== 'manager') {
+        return res.status(403).json({ message: "Insufficient permissions to adjust stock" });
+      }
+      
+      const product = await storage.updateProduct(productId, req.session.user!.businessId, { stock });
+      res.json(product);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  app.delete("/api/products/:id", requireAuth, async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      
+      // Check if user has permission to delete products (admin only)
+      if (req.session.user!.role !== 'admin') {
+        return res.status(403).json({ message: "Only admins can delete products" });
+      }
+      
+      await storage.deleteProduct(productId, req.session.user!.businessId);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
+  // Categories routes
+  app.get("/api/categories", requireAuth, async (req, res) => {
+    try {
+      const categories = await storage.getCategories(req.session.user!.businessId);
+      res.json(categories);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message });
+    }
+  });
+
   // Customers routes
   app.get("/api/customers", requireAuth, async (req, res) => {
     try {

@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { useState, useEffect } from "react";
 import Dashboard from "@/pages/dashboard";
 import POS from "@/pages/pos";
+import Products from "@/pages/products";
 import Inventory from "@/pages/inventory";
 import Customers from "@/pages/customers";
 import Employees from "@/pages/employees";
@@ -34,6 +35,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/pos" component={POS} />
+      <Route path="/products" component={Products} />
       <Route path="/inventory" component={Inventory} />
       <Route path="/customers" component={Customers} />
       <Route path="/employees" component={Employees} />
